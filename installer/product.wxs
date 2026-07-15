@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  product.wxs  （WiX Toolset v4/v5/v6/v7 用）
+
+  ※ v3 とはスキーマも要素名も異なるため、v3 用ファイルとは互換性がありません。
+
+  ビルド方法（installer/build_msi.bat 参照）:
+    wix build product.wxs -ext WixToolset.UI.wixext ^
+        -d SourceDir="..\dist\GifVideoConverter" ^
+        -o GifVideoConverter.msi
+
+  特徴:
+    - dist\GifVideoConverter\ 内の全ファイルを自動収集して同梱（Files要素のバインドパス）
+    - スタートメニューのショートカットは常に作成
+    - デスクトップのショートカットはインストーラー画面のチェックボックスで
+      ユーザーが任意に選択（既定はOFF）
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+
+    <!--
+      製品定義。
+      - Manufacturer / Version は配布前に自分の値へ書き換える
+      - UpgradeCode はバージョンを跨いで固定にすること（変更するとアップグレード不可）
+    -->
+    <Package Name="GIF Video Converter"
+             Manufacturer="Your Company"
+             Version="1.0.0.0"
+             UpgradeCode="8F2C1E7A-4B6D-4A2E-9C1F-2A3B4C5D6E7F"
+             Language="1041"
+             Compressed="yes"
+             Scope="perMachine">
+
+        <!-- 旧バージョンを自動でアンインストールしてアップグレード -->
+        <MajorUpgrade DowngradeErrorMessage="より新しいバージョンが既にインストールされています。" />
+
+        <!-- 全ファイルを1つの cab にまとめて MSI に埋め込む -->
+        <MediaTemplate EmbedCab="yes" />
+
+        <!-- ===== 機能（Feature）定義 ===== -->
+
+        <!-- 本体（必須・常にインストール）-->
+        <Feature Id="MainApplication" Title="本体" Level="1">
+            <ComponentGroupRef Id="AppFiles" />
+            <ComponentRef Id="StartMenuShortcutComponent" />
+        </Feature>
+
+        <!--
+          デスクトップショートカット（任意）。
+          既定 Level="2"（＝未インストール）。チェックボックスが ON(1) のときだけ
+          Level を 1 に引き上げてインストール対象にする。
+        -->
+        <Feature Id="DesktopShortcutFeature"
+                 Title="デスクトップにショートカットを作成"
+                 Level="2">
+            <ComponentRef Id="DesktopShortcutComponent" />
+            <!-- チェックボックス ON のとき Level=1（インストールする）に切り替え -->
+            <Level Value="1" Condition="INSTALLDESKTOPSHORTCUT = &quot;1&quot;" />
+        </Feature>
+
+        <!-- ===== ディレクトリ構成 ===== -->
+        <StandardDirectory Id="ProgramFiles64Folder">
+            <Directory Id="INSTALLFOLDER" Name="GifVideoConverter">
+                <!--
+                  dist\GifVideoConverter\ 配下のファイル・サブフォルダを丸ごと収集。
+                  bindpath は build 時の -d SourceDir=... で解決する。
+                -->
+                <Files Include="!(bindpath.SourceDir)\**" />
+            </Directory>
+        </StandardDirectory>
+
+        <!-- スタートメニュー用フォルダ -->
+        <StandardDirectory Id="ProgramMenuFolder">
+            <Directory Id="AppProgramMenuDir" Name="GIF Video Converter" />
+        </StandardDirectory>
+
+        <!-- デスクトップ -->
+        <StandardDirectory Id="DesktopFolder" />
+
+        <!-- ===== ショートカットのコンポーネント ===== -->
+
+        <!-- スタートメニューのショートカット（常に作成）-->
+        <Component Id="StartMenuShortcutComponent"
+                   Directory="AppProgramMenuDir"
+                   Guid="C2E3F4A5-6B7C-8D9E-0F1A-2B3C4D5E6F70">
+            <Shortcut Id="StartMenuShortcut"
+                      Name="GIF Video Converter"
+                      Description="GIF と MP4 の相互変換ツール"
+                      Target="[INSTALLFOLDER]GifVideoConverter.exe"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <!-- アンインストール時にメニューフォルダを削除 -->
+            <RemoveFolder Id="RemoveAppProgramMenuDir" On="uninstall" />
+            <!-- コンポーネント有効化のためのレジストリキー -->
+            <RegistryValue Root="HKCU"
+                           Key="Software\YourCompany\GifVideoConverter"
+                           Name="startmenu"
+                           Type="integer"
+                           Value="1"
+                           KeyPath="yes" />
+        </Component>
+
+        <!-- デスクトップのショートカット（任意選択）-->
+        <Component Id="DesktopShortcutComponent"
+                   Directory="DesktopFolder"
+                   Guid="D3F4A5B6-7C8D-9E0F-1A2B-3C4D5E6F7081">
+            <Shortcut Id="DesktopShortcut"
+                      Name="GIF Video Converter"
+                      Description="GIF と MP4 の相互変換ツール"
+                      Target="[INSTALLFOLDER]GifVideoConverter.exe"
+                      WorkingDirectory="INSTALLFOLDER" />
+            <RegistryValue Root="HKCU"
+                           Key="Software\YourCompany\GifVideoConverter"
+                           Name="desktop"
+                           Type="integer"
+                           Value="1"
+                           KeyPath="yes" />
+        </Component>
+
+        <!-- ===== インストーラー UI ===== -->
+
+        <!--
+          インストール先選択つきの標準 UI。
+          WixUI_InstallDir を使うため、INSTALLFOLDER をプロパティに割り当てる。
+        -->
+        <Property Id="WIXUI_INSTALLDIR" Value="INSTALLFOLDER" />
+        <ui:WixUI Id="WixUI_InstallDir" />
+
+        <!--
+          チェックボックスでデスクトップショートカットの要否を選ばせる。
+          カスタムダイアログを追加し、ON のときだけ DesktopShortcutFeature を
+          インストール対象にする。
+        -->
+        <Property Id="INSTALLDESKTOPSHORTCUT" Value="0" />
+
+        <!-- 完了ダイアログの後などにチェックボックスを差し込むための小ダイアログ -->
+        <UI>
+            <Dialog Id="DesktopShortcutDlg" Width="370" Height="270"
+                    Title="ショートカットの設定">
+                <Control Id="Title" Type="Text" X="15" Y="15" Width="340" Height="15"
+                         Transparent="yes" NoPrefix="yes"
+                         Text="{\WixUI_Font_Title}ショートカットの設定" />
+                <Control Id="Description" Type="Text" X="25" Y="40" Width="320" Height="20"
+                         Transparent="yes" NoPrefix="yes"
+                         Text="作成するショートカットを選択してください。" />
+
+                <!-- デスクトップショートカットのチェックボックス -->
+                <Control Id="DesktopCheckBox" Type="CheckBox" X="25" Y="75" Width="320" Height="18"
+                         Property="INSTALLDESKTOPSHORTCUT" CheckBoxValue="1"
+                         Text="デスクトップにショートカットを作成する" />
+                <Control Id="StartMenuNote" Type="Text" X="25" Y="100" Width="320" Height="18"
+                         Transparent="yes" NoPrefix="yes"
+                         Text="※ スタートメニューのショートカットは常に作成されます。" />
+
+                <!-- 戻る／次へ／キャンセル -->
+                <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17"
+                         Text="戻る">
+                    <Publish Event="NewDialog" Value="InstallDirDlg" />
+                </Control>
+                <Control Id="Next" Type="PushButton" X="236" Y="243" Width="56" Height="17"
+                         Default="yes" Text="次へ">
+                    <Publish Event="NewDialog" Value="VerifyReadyDlg" />
+                </Control>
+                <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17"
+                         Cancel="yes" Text="キャンセル">
+                    <Publish Event="SpawnDialog" Value="CancelDlg" />
+                </Control>
+            </Dialog>
+        </UI>
+
+        <!-- インストール先選択の「次へ」を、上のチェックボックス画面へ差し込む -->
+        <UI>
+            <Publish Dialog="InstallDirDlg" Control="Next"
+                     Event="NewDialog" Value="DesktopShortcutDlg" Order="10" />
+            <Publish Dialog="VerifyReadyDlg" Control="Back"
+                     Event="NewDialog" Value="DesktopShortcutDlg" Order="10" />
+        </UI>
+
+    </Package>
+</Wix>

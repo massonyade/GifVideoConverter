@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<!-- 変換ツールのメイン画面 -->
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GIF ↔ 動画 変換ツール</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="app">
+        <!-- ヘッダー -->
+        <header class="app-header">
+            <div class="logo-mark" aria-hidden="true">
+                <span class="logo-a">GIF</span>
+                <span class="logo-swap">⇄</span>
+                <span class="logo-b">MP4</span>
+            </div>
+            <h1 class="app-title">GIF ↔ 動画 変換ツール</h1>
+            <p class="app-subtitle">MP4 と GIF を相互に変換します。ファイルは端末内でのみ処理されます。</p>
+        </header>
+
+        <!-- 通知メッセージ（エラー / 成功） -->
+        <div id="notice" class="notice" role="alert" hidden></div>
+
+        <main class="card">
+
+            <!-- ステップ1: ファイル選択エリア -->
+            <section id="step-select" class="step">
+                <div id="dropzone" class="dropzone" tabindex="0" role="button"
+                     aria-label="ファイルを選択、またはドラッグ＆ドロップ">
+                    <div class="dropzone-icon" aria-hidden="true">⬆</div>
+                    <p class="dropzone-title">ファイルをドラッグ＆ドロップ</p>
+                    <p class="dropzone-or">または</p>
+                    <button type="button" id="browse-btn" class="btn btn-secondary">ファイルを選択</button>
+                    <p class="dropzone-hint">対応形式：.mp4 / .gif（最大 500MB）</p>
+                    <!-- クリック選択用の隠しinput -->
+                    <input type="file" id="file-input" accept=".mp4,.gif" hidden>
+                </div>
+            </section>
+
+            <!-- ステップ2: 変換設定エリア -->
+            <section id="step-settings" class="step" hidden>
+                <div class="file-summary">
+                    <div class="file-summary-info">
+                        <span class="file-name" id="selected-name">-</span>
+                        <span class="file-size" id="selected-size">-</span>
+                    </div>
+                    <button type="button" id="clear-file-btn" class="btn-text">選び直す</button>
+                </div>
+
+                <!-- 変換方向の表示 -->
+                <div class="conversion-direction">
+                    <div class="format-chip" id="src-format">-</div>
+                    <span class="direction-arrow" aria-hidden="true">→</span>
+                    <div class="format-chip format-chip-target" id="dst-format">-</div>
+                </div>
+
+                <!-- フレームレート設定（GIF 生成時のみ表示）-->
+                <div class="control" id="fps-control">
+                    <div class="control-head">
+                        <label for="fps-slider">フレームレート</label>
+                        <output id="fps-value">15 fps</output>
+                    </div>
+                    <input type="range" id="fps-slider" min="5" max="30" step="1" value="15">
+                    <div class="control-range-labels"><span>5</span><span>30</span></div>
+                </div>
+
+                <!-- 品質設定 -->
+                <div class="control" id="quality-control">
+                    <div class="control-head">
+                        <label for="quality-slider">品質</label>
+                        <output id="quality-value">80%</output>
+                    </div>
+                    <input type="range" id="quality-slider" min="30" max="100" step="1" value="80">
+                    <div class="control-range-labels"><span>30%</span><span>100%</span></div>
+                </div>
+
+                <button type="button" id="convert-btn" class="btn btn-primary btn-block">変換する</button>
+            </section>
+
+            <!-- ステップ3: 進捗表示エリア -->
+            <section id="step-progress" class="step" hidden>
+                <p class="progress-message" id="progress-message">変換を準備しています</p>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+                </div>
+                <p class="progress-percent" id="progress-percent">0%</p>
+                <button type="button" id="cancel-btn" class="btn btn-secondary btn-block">キャンセル</button>
+            </section>
+
+            <!-- ステップ4: 結果表示エリア -->
+            <section id="step-result" class="step" hidden>
+                <div class="result-icon" aria-hidden="true">✓</div>
+                <p class="result-title">変換が完了しました</p>
+                <a id="download-link" class="btn btn-primary btn-block" download>ダウンロード</a>
+                <button type="button" id="new-conversion-btn" class="btn btn-secondary btn-block">新しく変換する</button>
+            </section>
+
+        </main>
+
+        <footer class="app-footer">
+            <p>ローカル環境で動作します</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

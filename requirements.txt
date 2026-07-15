@@ -1,0 +1,6 @@
+# 実行に必要な Python パッケージ
+Flask==3.0.3
+Werkzeug==3.0.3
+
+# EXE 化に使用（配布ビルド時のみ必要）
+pyinstaller

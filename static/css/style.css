@@ -1,0 +1,315 @@
+/* ==========================================================================
+   style.css
+   GIF ↔ 動画 変換ツールのスタイル。
+   カラースキーム：グレー基調 + 青アクセント。フォント：Arial, sans-serif。
+   ========================================================================== */
+
+/* ---- デザイントークン（配色・余白などの一元管理）---- */
+:root {
+    /* グレー系 */
+    --gray-50:  #f7f8fa;
+    --gray-100: #eef0f4;
+    --gray-200: #e2e6ec;
+    --gray-300: #cbd2dc;
+    --gray-400: #9aa5b4;
+    --gray-500: #6b7688;
+    --gray-700: #3c4657;
+    --gray-900: #1c2430;
+
+    /* 青アクセント */
+    --blue-500: #2f6fed;
+    --blue-600: #245ad0;
+    --blue-100: #e5eefc;
+
+    /* 状態色 */
+    --success-bg: #e7f6ec;
+    --success-fg: #1c7a3f;
+    --success-border: #97d5ab;
+    --error-bg: #fdeaea;
+    --error-fg: #b42323;
+    --error-border: #f0a8a8;
+
+    --radius: 12px;
+    --radius-sm: 8px;
+    --shadow: 0 10px 30px rgba(28, 36, 48, 0.08);
+    --shadow-sm: 0 2px 8px rgba(28, 36, 48, 0.06);
+    --transition: 0.18s ease;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: Arial, "Helvetica Neue", Helvetica, sans-serif;
+    color: var(--gray-900);
+    /* グレーの階調をつけた背景 */
+    background:
+        radial-gradient(1200px 600px at 50% -10%, var(--gray-100), transparent),
+        var(--gray-50);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 16px;
+    line-height: 1.6;
+}
+
+.app {
+    width: 100%;
+    max-width: 540px;
+}
+
+/* ---- ヘッダー ---- */
+.app-header { text-align: center; margin-bottom: 24px; }
+
+.logo-mark {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: bold;
+    letter-spacing: 0.5px;
+    padding: 8px 16px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: var(--shadow-sm);
+    margin-bottom: 16px;
+}
+.logo-a { color: var(--gray-700); }
+.logo-b { color: var(--blue-500); }
+.logo-swap { color: var(--gray-400); font-size: 18px; }
+
+.app-title { font-size: 24px; color: var(--gray-900); margin-bottom: 6px; }
+.app-subtitle { font-size: 14px; color: var(--gray-500); }
+
+/* ---- 通知メッセージ ---- */
+.notice {
+    padding: 12px 16px;
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    margin-bottom: 16px;
+    border: 1px solid transparent;
+}
+.notice.notice-error {
+    background: var(--error-bg);
+    color: var(--error-fg);
+    border-color: var(--error-border);
+}
+.notice.notice-success {
+    background: var(--success-bg);
+    color: var(--success-fg);
+    border-color: var(--success-border);
+}
+
+/* ---- カード ---- */
+.card {
+    background: #fff;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px;
+    border: 1px solid var(--gray-200);
+}
+
+.step { animation: fade-in 0.25s ease; }
+@keyframes fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ---- ドロップゾーン ---- */
+.dropzone {
+    border: 2px dashed var(--gray-300);
+    border-radius: var(--radius);
+    padding: 40px 20px;
+    text-align: center;
+    transition: border-color var(--transition), background var(--transition);
+    cursor: pointer;
+    background: var(--gray-50);
+}
+.dropzone:hover,
+.dropzone:focus-visible {
+    border-color: var(--blue-500);
+    background: var(--blue-100);
+    outline: none;
+}
+.dropzone.dragover {
+    border-color: var(--blue-500);
+    background: var(--blue-100);
+    transform: scale(1.01);
+}
+.dropzone-icon {
+    font-size: 34px;
+    color: var(--blue-500);
+    margin-bottom: 10px;
+}
+.dropzone-title { font-size: 16px; color: var(--gray-700); margin-bottom: 4px; }
+.dropzone-or { font-size: 13px; color: var(--gray-400); margin: 8px 0; }
+.dropzone-hint { font-size: 12px; color: var(--gray-400); margin-top: 14px; }
+
+/* ---- ファイル概要 ---- */
+.file-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--gray-50);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-sm);
+    padding: 12px 14px;
+    margin-bottom: 20px;
+}
+.file-summary-info { display: flex; flex-direction: column; overflow: hidden; }
+.file-name {
+    font-size: 14px; color: var(--gray-900); font-weight: bold;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 340px;
+}
+.file-size { font-size: 12px; color: var(--gray-500); }
+
+/* ---- 変換方向 ---- */
+.conversion-direction {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+.format-chip {
+    padding: 8px 20px;
+    border-radius: var(--radius-sm);
+    background: var(--gray-100);
+    color: var(--gray-700);
+    font-weight: bold;
+    font-size: 14px;
+    letter-spacing: 1px;
+}
+.format-chip-target { background: var(--blue-100); color: var(--blue-600); }
+.direction-arrow { color: var(--gray-400); font-size: 20px; }
+
+/* ---- スライダーコントロール ---- */
+.control { margin-bottom: 22px; }
+.control-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 8px;
+}
+.control-head label { font-size: 14px; color: var(--gray-700); font-weight: bold; }
+.control-head output { font-size: 14px; color: var(--blue-600); font-weight: bold; }
+
+.control-range-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11px;
+    color: var(--gray-400);
+    margin-top: 4px;
+}
+
+/* スライダー本体（クロスブラウザ対応） */
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+    background: var(--gray-200);
+    outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--blue-500);
+    border: 3px solid #fff;
+    box-shadow: 0 1px 4px rgba(28, 36, 48, 0.25);
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition);
+}
+input[type="range"]::-webkit-slider-thumb:hover { background: var(--blue-600); transform: scale(1.1); }
+input[type="range"]::-moz-range-thumb {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: var(--blue-500); border: 3px solid #fff;
+    box-shadow: 0 1px 4px rgba(28, 36, 48, 0.25); cursor: pointer;
+}
+input[type="range"]::-moz-range-thumb:hover { background: var(--blue-600); }
+
+/* ---- ボタン ---- */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 22px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 15px;
+    font-weight: bold;
+    font-family: inherit;
+    cursor: pointer;
+    transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
+    text-decoration: none;
+}
+.btn:active { transform: translateY(1px); }
+.btn-block { display: flex; width: 100%; }
+
+/* プライマリ（青） */
+.btn-primary { background: var(--blue-500); color: #fff; box-shadow: var(--shadow-sm); }
+.btn-primary:hover { background: var(--blue-600); }
+
+/* セカンダリ（グレー） */
+.btn-secondary { background: var(--gray-100); color: var(--gray-700); }
+.btn-secondary:hover { background: var(--gray-200); }
+
+.btn:disabled { opacity: 0.55; cursor: not-allowed; transform: none; }
+
+.btn-text {
+    background: none; border: none; color: var(--blue-500);
+    font-size: 13px; font-family: inherit; cursor: pointer; font-weight: bold;
+}
+.btn-text:hover { color: var(--blue-600); text-decoration: underline; }
+
+/* ---- 進捗 ---- */
+.progress-message { text-align: center; color: var(--gray-700); font-size: 15px; margin-bottom: 16px; }
+.progress-track {
+    width: 100%;
+    height: 12px;
+    background: var(--gray-200);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue-500), var(--blue-600));
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+.progress-percent {
+    text-align: center;
+    font-size: 22px;
+    font-weight: bold;
+    color: var(--blue-600);
+    margin-bottom: 20px;
+}
+
+/* ---- 結果 ---- */
+.result-icon {
+    width: 60px; height: 60px; margin: 0 auto 14px;
+    border-radius: 50%;
+    background: var(--success-bg); color: var(--success-fg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px;
+}
+.result-title { text-align: center; font-size: 18px; color: var(--gray-900); margin-bottom: 20px; }
+#download-link { margin-bottom: 10px; }
+
+/* ---- フッター ---- */
+.app-footer { text-align: center; margin-top: 20px; font-size: 12px; color: var(--gray-400); }
+
+/* ---- レスポンシブ ---- */
+@media (max-width: 480px) {
+    body { padding: 20px 12px; }
+    .card { padding: 20px; }
+    .file-name { max-width: 200px; }
+}
+
+/* ---- モーション低減の尊重 ---- */
+@media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+}
