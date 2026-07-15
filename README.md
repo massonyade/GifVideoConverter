@@ -8,7 +8,7 @@ All rights reserved.
 【English】
 This source code is provided solely for the purpose of security auditing and review. 
 Any copying, modification, redistribution, execution, or use of this software, in whole or in part, for any other commercial or personal purpose is strictly prohibited without the express prior written consent of the copyright holder.
-──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+─────────────────────────────────────────────────────────────────────────
 
 本ソフトはAIにより作成されました
 本ソフトを悪用することは禁止し悪用された・した場合の責任を私は一切負いません、自己責任でお願いします
